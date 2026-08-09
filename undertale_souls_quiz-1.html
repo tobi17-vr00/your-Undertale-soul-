@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Undertale Soul</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0d;
+    --panel:#000000;
+    --ink:#ffffff;
+    --dim:#8a8a94;
+    --det:#ff0033;
+    --bra:#ff9a1f;
+    --jus:#ffe600;
+    --kin:#25e07a;
+    --int:#2f8cff;
+    --per:#b23bff;
+    --pat:#28e0ff;
+    --accent: var(--det);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background:
+      radial-gradient(circle at 50% 0%, #16141c 0%, var(--bg) 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:'Tajawal', sans-serif;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    overflow-x:hidden;
+  }
+  .stage{ width:100%; max-width:560px; }
+  .kicker{
+    font-family:'Press Start 2P', monospace;
+    font-size:10px; letter-spacing:2px; color:var(--dim);
+    text-align:center; margin-bottom:14px;
+    animation: flicker 3.4s infinite;
+  }
+  @keyframes flicker{ 0%,92%,100%{opacity:.8;} 94%{opacity:.3;} 96%{opacity:.9;} }
+
+  .box{
+    background:var(--panel);
+    border:4px solid var(--ink);
+    box-shadow: 0 0 0 2px #000, 8px 8px 0 rgba(255,255,255,0.05);
+    border-radius:2px;
+    padding:28px 24px;
+    position:relative;
+    min-height:280px;
+    display:flex;
+    flex-direction:column;
+  }
+  .box::before{
+    content:"";
+    position:absolute; inset:8px;
+    border:1px solid rgba(255,255,255,0.15);
+    pointer-events:none;
+  }
+
+  .screen{ display:none; flex-direction:column; flex:1; gap:18px; animation: fadeIn .35s ease; }
+  .screen.active{ display:flex; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  #screen-start{ align-items:center; justify-content:center; text-align:center; gap:22px; }
+  .title{
+    font-family:'Press Start 2P', monospace;
+    font-size:22px; line-height:1.7; color:var(--ink);
+    text-shadow: 0 0 12px rgba(255,0,51,0.5);
+  }
+  .subtitle{ color:var(--dim); font-size:15px; line-height:1.9; max-width:400px; }
+  .soul-row{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:6px 0; }
+  .mini-heart{ width:14px; height:14px; transform:rotate(45deg); border-radius:2px; opacity:.9; }
+
+  .lang-switch{ display:flex; gap:8px; justify-content:center; }
+  .lang-btn{
+    font-family:'Press Start 2P', monospace;
+    font-size:10px; color:var(--dim);
+    background:transparent; border:2px solid #2a2a32;
+    padding:6px 10px; cursor:pointer;
+    transition: color .15s, border-color .15s;
+  }
+  .lang-btn.active{ color:var(--ink); border-color:var(--ink); }
+  .lang-btn:hover{ color:var(--ink); }
+
+  .btn{
+    font-family:'Tajawal', sans-serif;
+    font-weight:700; font-size:15px; color:var(--ink);
+    background:transparent; border:3px solid var(--ink);
+    padding:13px 16px; text-align:right; cursor:pointer;
+    display:flex; align-items:center; gap:12px;
+    transition: background .12s, color .12s, border-color .12s;
+  }
+  .btn:hover, .btn:focus-visible{ background:var(--ink); color:#000; outline:none; }
+  .btn .pointer{
+    width:12px; height:12px; background:var(--det);
+    transform:rotate(45deg); flex-shrink:0; opacity:0;
+    transition:opacity .12s;
+  }
+  .btn:hover .pointer, .btn:focus-visible .pointer{ opacity:1; }
+
+  .btn-start{
+    font-family:'Press Start 2P', monospace;
+    font-size:13px; justify-content:center; padding:18px;
+  }
+
+  html[dir="ltr"] .btn{ text-align:left; }
+
+  .social-dock{
+    position:fixed; bottom:16px; left:16px;
+    display:none;
+    flex-direction:column; gap:8px;
+    z-index:50;
+  }
+  .social-dock.visible{ display:flex; }
+  .social-btn{
+    width:34px; height:34px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:#000; text-decoration:none;
+    box-shadow:0 0 8px rgba(0,0,0,0.6);
+    transition: transform .15s;
+  }
+  .social-btn:hover{ transform:scale(1.12); }
+  .social-btn svg{ width:16px; height:16px; }
+  .social-fb{ border:2px solid #1877F2; color:#1877F2; }
+  .social-ig{ border:2px solid #ff3b3b; color:#ff3b3b; }
+  .social-x{ border:2px solid #ffffff; color:#ffffff; }
+  .social-itch{ border:2px solid #FF7A00; color:#FF7A00; }
+
+  .visitor-dock{
+    position:fixed; bottom:16px; right:16px;
+    display:none;
+    z-index:50;
+    opacity:.85;
+  }
+  .visitor-dock.visible{ display:block; }
+  .visitor-dock img{ height:20px; display:block; border-radius:3px; }
+
+  .progress-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .progress-label{ font-size:11px; color:var(--dim); font-family:'Press Start 2P', monospace; }
+  .progress-track{ flex:1; height:8px; background:#1c1c22; position:relative; overflow:hidden; }
+  .progress-fill{ height:100%; background:var(--det); width:0%; transition:width .3s ease; box-shadow:0 0 8px var(--det); }
+  .question-text{ font-size:18px; line-height:1.85; font-weight:700; min-height:70px; }
+  .options{ display:flex; flex-direction:column; gap:10px; margin-top:auto; }
+
+  #screen-result{ align-items:center; text-align:center; gap:14px; }
+  .result-eyebrow{ font-family:'Press Start 2P', monospace; font-size:10px; color:var(--dim); letter-spacing:2px; }
+
+  .result-name{ display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .you-are-label{
+    font-family:'Press Start 2P', monospace;
+    font-size:11px; color:var(--dim); letter-spacing:1px;
+  }
+  .soul-name-ar{
+    font-family:'Press Start 2P', monospace;
+    font-size:22px; line-height:1.5;
+  }
+  .soul-name-en{
+    font-family:'Press Start 2P', monospace;
+    font-size:14px; line-height:1.5; opacity:.9;
+  }
+
+  .portrait-wrap{ display:flex; align-items:flex-end; justify-content:center; gap:26px; margin:6px auto; }
+  .portrait-frame{
+    width:220px; height:275px;
+    border:3px solid var(--ink);
+    background:#050505;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+    box-shadow: 0 0 24px var(--accent);
+  }
+  .portrait-frame img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+  .result-intro{ font-size:15.5px; line-height:1.9; color:var(--ink); max-width:420px; min-height:1.4em; }
+  .result-intro .cursor{
+    display:inline-block; width:2px; height:1em; background:var(--ink);
+    margin-right:2px; vertical-align:middle;
+    animation: blink 0.85s steps(1) infinite;
+  }
+  .result-quote{
+    font-size:15.5px; line-height:1.95; color:#f0f0f0;
+    max-width:420px; font-style:italic;
+    border-right:3px solid var(--accent);
+    padding-right:12px; text-align:right;
+    min-height:1.2em;
+  }
+  html[dir="ltr"] .result-quote{
+    border-right:none; border-left:3px solid var(--accent);
+    padding-right:0; padding-left:12px; text-align:left;
+  }
+  .result-quote .cursor{
+    display:inline-block; width:2px; height:1em; background:var(--accent);
+    margin-right:2px; vertical-align:middle;
+    animation: blink 0.85s steps(1) infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .skip-hint{ font-size:11px; color:var(--dim); cursor:pointer; }
+
+  .result-actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:4px; }
+  .retry, .stats-btn{
+    font-family:'Press Start 2P', monospace;
+    font-size:11px; color:var(--dim);
+    background:transparent; border:2px solid var(--dim);
+    padding:10px 16px; cursor:pointer; transition: all .15s;
+  }
+  .retry:hover, .stats-btn:hover{ color:var(--ink); border-color:var(--ink); }
+
+  .stats-overlay{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 50% 0%, #17151d 0%, #050506 60%),
+      rgba(0,0,0,0.97);
+    display:none;
+    flex-direction:column; gap:16px;
+    padding:28px 22px;
+    overflow-y:auto;
+    z-index:10;
+  }
+  .stats-overlay.open{ display:flex; animation: fadeIn .25s ease; }
+  .stats-title{
+    font-family:'Press Start 2P', monospace;
+    font-size:14px; text-align:center; color:var(--ink);
+    letter-spacing:1px;
+  }
+  .stats-total{
+    text-align:center; color:var(--dim); font-size:12px;
+    border:1px solid #232329; padding:10px 14px;
+    background:rgba(255,255,255,0.02);
+  }
+  .stats-total b{
+    display:block; color:var(--ink); font-size:22px;
+    font-family:'Press Start 2P', monospace; margin-top:4px;
+  }
+  .stats-list{ display:flex; flex-direction:column; gap:14px; margin-top:2px; }
+  .stats-card{
+    border:1px solid #232329;
+    background:rgba(255,255,255,0.015);
+    padding:10px 12px;
+    transition: border-color .3s, background .3s;
+  }
+  .stats-card.top{
+    border-color: var(--card-color, var(--ink));
+    background: rgba(255,255,255,0.04);
+  }
+  .stats-row-label{ display:flex; justify-content:space-between; align-items:center; font-size:13px; margin-bottom:8px; }
+  .stats-soul-name{ display:flex; align-items:center; gap:8px; font-weight:700; }
+  .stats-dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .stats-pct{ font-family:'Press Start 2P', monospace; font-size:12px; }
+  .stats-count{ color:var(--dim); font-size:11px; }
+  .stats-bar-track{ height:12px; background:#131317; overflow:hidden; border-radius:2px; }
+  .stats-bar-fill{
+    height:100%; width:0%;
+    transition:width 1s cubic-bezier(.2,.8,.2,1), box-shadow .6s ease;
+    border-radius:2px;
+  }
+  .stats-msg{ text-align:center; color:var(--dim); font-size:13px; }
+  .stats-crown{ font-size:12px; }
+  .stats-close{
+    align-self:center; margin-top:auto;
+    font-family:'Press Start 2P', monospace;
+    font-size:11px; color:var(--dim);
+    background:transparent; border:2px solid var(--dim);
+    padding:10px 16px; cursor:pointer;
+  }
+  .stats-close:hover{ color:var(--ink); border-color:var(--ink); }
+
+  @media (max-width:480px){
+    .title{ font-size:17px; }
+    .box{ padding:20px 16px; }
+    .question-text{ font-size:16.5px; }
+  }
+  @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="kicker" id="kicker-text">* بقي روح واحدة صامدة في هذا الطريق</div>
+
+  <div class="box">
+
+    <!-- ============ Start screen ============ -->
+    <div class="screen active" id="screen-start">
+      <div class="soul-row" id="soul-preview"></div>
+      <div class="kicker" style="margin-bottom:0;">Your Undertale Soul</div>
+      <div class="title" id="title-text">أي روح تحملها؟</div>
+      <p class="subtitle" id="subtitle-text">عشرون سؤالًا تكشف إلى أي الأرواح السبعة تنتمي. أجب بصدق، فكل اختيار يترك أثرًا.</p>
+      <div class="lang-switch" id="lang-switch">
+        <button class="lang-btn active" data-lang="ar">AR</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="es">ES</button>
+      </div>
+      <button class="btn btn-start" id="btn-begin"><span id="begin-text">ابدأ الرحلة ▶</span></button>
+    </div>
+
+    <!-- ============ Quiz screen ============ -->
+    <div class="screen" id="screen-quiz">
+      <div class="progress-row">
+        <span class="progress-label" id="progress-label">1 / 20</span>
+        <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      </div>
+      <p class="question-text" id="question-text"></p>
+      <div class="options" id="options-container"></div>
+    </div>
+
+    <!-- ============ Result screen ============ -->
+    <div class="screen" id="screen-result">
+      <div class="result-eyebrow" id="eyebrow-text">* روحك الحقيقية هي</div>
+      <p class="result-intro" id="result-intro"><span id="intro-text"></span><span class="cursor" id="intro-cursor"></span></p>
+      <div class="result-name" id="result-name" style="display:none;">
+        <div class="you-are-label" id="youare-text">روحك هي</div>
+        <div class="soul-name-ar" id="soul-name-ar"></div>
+        <div class="soul-name-en" id="soul-name-en"></div>
+      </div>
+      <div class="portrait-wrap" id="portrait-wrap" style="display:none;">
+        <div class="portrait-frame" id="portrait-frame"></div>
+      </div>
+      <p class="result-quote" id="result-quote" style="display:none;"><span id="quote-text"></span><span class="cursor" id="quote-cursor"></span></p>
+      <span class="skip-hint" id="skip-hint">(اضغط هنا لإظهار النص كاملًا)</span>
+      <div class="result-actions" id="result-actions" style="display:none;">
+        <button class="retry" id="btn-retry"><span id="retry-text">أعد المحاولة من جديد</span></button>
+        <button class="stats-btn" id="btn-stats"><span id="stats-btn-text">📊 الإحصائيات</span></button>
+      </div>
+    </div>
+
+    <div class="stats-overlay" id="stats-overlay">
+      <div class="stats-title" id="stats-title">إحصائيات الأرواح</div>
+      <div class="stats-total" id="stats-total"></div>
+      <div class="stats-list" id="stats-list"></div>
+      <button class="stats-close" id="btn-stats-close"><span id="stats-close-text">إغلاق</span></button>
+    </div>
+
+  </div>
+</div>
+
+<div class="social-dock visible" id="social-dock">
+  <a class="social-btn social-fb" href="https://www.facebook.com/profile.php?id=61578221229741" target="_blank" rel="noopener" aria-label="Facebook">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.91h2.54V9.84c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.44 2.91h-2.34V22c4.78-.79 8.44-4.94 8.44-9.94z"/></svg>
+  </a>
+  <a class="social-btn social-ig" href="https://www.instagram.com/to_bi.vr17?igsh=MXBhYmFsaGgwMWxibA==" target="_blank" rel="noopener" aria-label="Instagram">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+  </a>
+  <a class="social-btn social-x" href="https://x.com/To_bi17gmdv" target="_blank" rel="noopener" aria-label="X">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-6.9l-5.4-6.9L4.8 22H1.6l8.1-9.3L1 2h7l4.9 6.3L18.9 2zm-1.2 18h1.9L7.4 3.9H5.4L17.7 20z"/></svg>
+  </a>
+  <a class="social-btn social-itch" href="https://tobi17.itch.io/" target="_blank" rel="noopener" aria-label="itch.io">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.4 3.2C3 4 1 6.2 1 7.1c0 1.7 1.6 3.2 3.1 3.2 1.8 0 3.2-1.4 3.2-3 0 1.6 1.4 3 3.1 3 1.8 0 3.1-1.4 3.1-3 0 1.6 1.5 3 3.2 3 1.7 0 3.1-1.4 3.1-3 0 1.6 1.4 3 3.2 3C21.4 10.3 23 8.8 23 7.1c0-.9-2-3.1-3.4-3.9C17.8 2.4 15.1 2 12 2S6.2 2.4 4.4 3.2zM7.1 11.4c-.8.9-1.9 1.5-3 1.7L4 20.6c0 .5.4.9 1 1h14c.5-.1.9-.5 1-1l-.1-7.5c-1.1-.2-2.2-.8-3-1.7-.9.9-2 1.5-3.4 1.5-1.1 0-2.1-.4-2.9-1-.8.6-1.8 1-2.9 1-1.4 0-2.5-.6-3.4-1.5zM9 14.5h6c.3 0 .5.2.5.5v2.4c0 1.3-1.4 2.3-3.5 2.3s-3.5-1-3.5-2.3V15c0-.3.2-.5.5-.5z"/></svg>
+  </a>
+</div>
+
+<div class="visitor-dock visible" id="visitor-dock">
+  <img src="https://visitor-badge.laobi.icu/badge?page_id=tobi17-vr00.undertale-soul-quiz" alt="visitors">
+</div>
+
+<script>
+// ---------------- Visual data (language-independent) ----------------
+const SOULS = {
+  kindness:      { color:"#25e07a", gif:"images/1000330788.webp", portrait:"images/1000330763.jpg" },
+  integrity:     { color:"#2f8cff", gif:"images/1000330785.webp", portrait:"images/1000330760.jpg" },
+  patience:      { color:"#28e0ff", gif:"images/1000330790.webp", portrait:"images/1000330762.jpg" },
+  justice:       { color:"#ffe600", gif:"images/1000330789.webp", portrait:"images/1000330759.jpg" },
+  bravery:       { color:"#ff9a1f", gif:"images/1000330787.webp", portrait:"images/1000330764.jpg" },
+  perseverance:  { color:"#b23bff", gif:"images/1000330786.webp", portrait:"images/1000330765.png" },
+  determination: { color:"#ff0033", gif:"images/1000330791.webp", portrait:"images/1000330761.jpg" },
+};
+
+// ---------------- Soul names / intro / quote per language ----------------
+const SOUL_I18N = {
+  ar: {
+    kindness:      { name:"اللطف", en:"Kindness",
+      intro:"روحك مليئة بالرحمة والدفء.\nقلبك اختار أن يفهم الآخرين قبل أن يحكم عليهم.",
+      quote:"اللطف ليس ضعفًا، بل قوة لا يملكها إلا من يستطيع أن يختار الرحمة عندما يكون قادرًا على القسوة. في عالم مليء بالألم، أنت الشخص الذي يحاول أن يترك أثرًا أفضل." },
+    integrity:     { name:"النزاهة", en:"Integrity",
+      intro:"روحك تحمل الحقيقة والمبادئ فوق كل شيء.\nأنت لا تبحث عن الطريق الأسهل، بل عن الطريق الصحيح.",
+      quote:"قد يكون الصدق مؤلمًا، وقد تكون الحقيقة ثقيلة، لكنك تؤمن أن فقدان نفسك أسوأ من خسارة أي شيء آخر. مبادئك هي الشيء الذي لا يمكن لأحد أخذه منك." },
+    patience:      { name:"الصبر", en:"Patience",
+      intro:"روحك تعرف أن لكل شيء وقته المناسب.\nأنت لا تندفع خلف اللحظة، بل تراقب، تفهم، وتنتظر الفرصة الصحيحة.",
+      quote:"في عالم يطالب الجميع بالسرعة، اخترت أن تمنح الأشياء وقتها. الصبر ليس الوقوف بلا حركة، بل امتلاك القوة للانتظار دون أن تفقد إيمانك. فبعض أعظم الانتصارات لا تأتي لمن يركض أسرع، بل لمن يبقى ثابتًا حتى النهاية." },
+    justice:       { name:"العدالة", en:"Justice",
+      intro:"روحك تحمل ميزان الحق ولا تقبل تجاهل الخطأ.\nأنت لا تبحث عن الانتقام، بل عن محاسبة من يستحق.",
+      quote:"العالم لا يصبح أفضل بالصمت أمام الظلم. الرحمة مهمة، لكن بدون حدود تصبح الفوضى. أنت الشخص الذي يقف عندما يختار الآخرون النظر بعيدًا." },
+    bravery:       { name:"الشجاعة", en:"Bravery",
+      intro:"روحك لا تعرف معنى الاستسلام للخوف.\nأنت تمشي إلى الأمام حتى عندما ترتجف خطواتك.",
+      quote:"الشجاعة ليست غياب الخوف، بل القرار بأن هناك أشياء أهم من خوفك. أحيانًا لا يحتاج العالم إلى شخص لا يخاف، بل إلى شخص يواجه خوفه." },
+    perseverance:  { name:"المثابرة", en:"Perseverance",
+      intro:"روحك تحمل آثار كل معركة خضتها، لكنها لم تستطع كسر إرادتك.\nكل سقوط جعلك أقوى، وكل ألم أصبح خطوة أخرى نحو هدفك.",
+      quote:"المثابرة ليست أن لا تتألم، بل أن تستمر رغم الألم. هي أن تحمل جراحك وتنهض مرة أخرى، ليس لأن الطريق سهل، بل لأن الاستسلام ليس خيارًا. قد تتغير، وقد تتعب، وقد تخسر الكثير... لكنك تستمر في التقدم." },
+    determination: { name:"العزيمة", en:"Determination",
+      intro:"روحك مليئة بالإرادة والأمل الذي لا ينطفئ.\nحتى عندما يصبح الطريق مستحيلًا، أنت تختار الاستمرار.",
+      quote:"العزيمة ليست مجرد الرغبة في الفوز، بل القدرة على الوقوف أمام النهاية وقول: لم أنتهِ بعد. هي الشرارة الصغيرة التي تجعل الإنسان يبدأ من جديد مهما كان الظلام كبيرًا." },
+  },
+  en: {
+    kindness:      { name:"Kindness", en:"Kindness",
+      intro:"Your soul is full of compassion and warmth.\nYour heart chose to understand others before judging them.",
+      quote:"Kindness is not weakness — it's a strength only those who can choose mercy over cruelty possess. In a world full of pain, you're the one who tries to leave it a little better." },
+    integrity:     { name:"Integrity", en:"Integrity",
+      intro:"Your soul holds truth and principle above all else.\nYou don't look for the easy path, but for the right one.",
+      quote:"Honesty can be painful, and truth can be heavy, but you believe losing yourself is worse than losing anything else. Your principles are the one thing no one can take from you." },
+    patience:      { name:"Patience", en:"Patience",
+      intro:"Your soul knows that everything has its right time.\nYou don't rush the moment — you observe, understand, and wait for the right chance.",
+      quote:"In a world that demands speed from everyone, you chose to give things their time. Patience isn't standing still — it's the strength to wait without losing your faith. Some of the greatest victories don't go to the fastest, but to those who stay steady until the end." },
+    justice:       { name:"Justice", en:"Justice",
+      intro:"Your soul carries the scale of right and won't ignore wrongdoing.\nYou don't seek revenge, but accountability for those who deserve it.",
+      quote:"The world doesn't get better through silence in the face of injustice. Mercy matters, but without limits it becomes chaos. You're the one who stands up when others choose to look away." },
+    bravery:       { name:"Bravery", en:"Bravery",
+      intro:"Your soul doesn't know how to surrender to fear.\nYou walk forward even when your steps are shaking.",
+      quote:"Bravery isn't the absence of fear — it's deciding that something matters more than your fear. Sometimes the world doesn't need someone fearless, but someone who faces their fear." },
+    perseverance:  { name:"Perseverance", en:"Perseverance",
+      intro:"Your soul carries the scars of every battle you've fought, but they never broke your will.\nEvery fall made you stronger, every pain became another step toward your goal.",
+      quote:"Perseverance isn't never feeling pain — it's continuing despite it. It's carrying your wounds and rising again, not because the path is easy, but because giving up was never an option. You may change, you may tire, you may lose a great deal... but you keep moving forward." },
+    determination: { name:"Determination", en:"Determination",
+      intro:"Your soul is full of will and a hope that never fades.\nEven when the path becomes impossible, you choose to keep going.",
+      quote:"Determination isn't just the desire to win — it's the ability to stand at the very end and say: I'm not done yet. It's the small spark that makes a person start over, no matter how deep the darkness." },
+  },
+  es: {
+    kindness:      { name:"Bondad", en:"Kindness",
+      intro:"Tu alma está llena de compasión y calidez.\nTu corazón eligió comprender a los demás antes de juzgarlos.",
+      quote:"La bondad no es debilidad, es una fuerza que solo posee quien puede elegir la compasión pudiendo ser cruel. En un mundo lleno de dolor, eres quien intenta dejar una huella mejor." },
+    integrity:     { name:"Integridad", en:"Integrity",
+      intro:"Tu alma antepone la verdad y los principios a todo lo demás.\nNo buscas el camino fácil, sino el correcto.",
+      quote:"La honestidad puede doler, y la verdad puede pesar, pero crees que perderte a ti mismo es peor que perder cualquier otra cosa. Tus principios son lo único que nadie puede quitarte." },
+    patience:      { name:"Paciencia", en:"Patience",
+      intro:"Tu alma sabe que todo tiene su momento adecuado.\nNo te apresuras: observas, comprendes y esperas la oportunidad correcta.",
+      quote:"En un mundo que exige velocidad a todos, elegiste darle su tiempo a las cosas. La paciencia no es quedarse quieto, es la fuerza de esperar sin perder la fe. Algunas de las mayores victorias no son para quien corre más rápido, sino para quien se mantiene firme hasta el final." },
+    justice:       { name:"Justicia", en:"Justice",
+      intro:"Tu alma sostiene la balanza de lo correcto y no ignora el error.\nNo buscas venganza, sino que cada quien rinda cuentas.",
+      quote:"El mundo no mejora con el silencio frente a la injusticia. La compasión importa, pero sin límites se convierte en caos. Eres quien se levanta cuando otros eligen mirar hacia otro lado." },
+    bravery:       { name:"Valentía", en:"Bravery",
+      intro:"Tu alma no conoce la rendición ante el miedo.\nAvanzas incluso cuando tus pasos tiemblan.",
+      quote:"La valentía no es la ausencia de miedo, es decidir que algo importa más que tu miedo. A veces el mundo no necesita a alguien sin miedo, sino a alguien que lo enfrenta." },
+    perseverance:  { name:"Perseverancia", en:"Perseverance",
+      intro:"Tu alma lleva las cicatrices de cada batalla que has librado, pero nunca lograron quebrar tu voluntad.\nCada caída te hizo más fuerte, cada dolor se convirtió en un paso más hacia tu meta.",
+      quote:"La perseverancia no es no sentir dolor, es continuar a pesar de él. Es cargar tus heridas y levantarte de nuevo, no porque el camino sea fácil, sino porque rendirse nunca fue una opción. Puedes cambiar, puedes cansarte, puedes perder mucho... pero sigues avanzando." },
+    determination: { name:"Determinación", en:"Determination",
+      intro:"Tu alma está llena de voluntad y una esperanza que nunca se apaga.\nAunque el camino se vuelva imposible, eliges seguir adelante.",
+      quote:"La determinación no es solo el deseo de ganar, es la capacidad de plantarse ante el final y decir: aún no he terminado. Es la pequeña chispa que hace que una persona vuelva a empezar, sin importar cuán grande sea la oscuridad." },
+  }
+};
+
+// ---------------- Scoring map (language-independent), 20 questions ----------------
+const QUESTIONS = [
+{ o:[{s:{kindness:3}},{s:{integrity:3}},{s:{patience:3}},{s:{justice:3}},{s:{bravery:3}},{s:{perseverance:3}},{s:{determination:3}}] },
+{ o:[{s:{kindness:3}},{s:{integrity:2}},{s:{patience:3}},{s:{justice:3}},{s:{bravery:2}},{s:{perseverance:2}},{s:{determination:2}}] },
+{ o:[{s:{kindness:3}},{s:{integrity:2}},{s:{determination:2, perseverance:1}},{s:{bravery:1}}] },
+{ o:[{s:{kindness:3}},{s:{justice:3}},{s:{integrity:2, patience:1}},{s:{determination:2, kindness:1}}] },
+{ o:[{s:{kindness:2}},{s:{patience:3}},{s:{integrity:2}},{s:{justice:1, integrity:1}}] },
+{ o:[{s:{kindness:2, integrity:1}},{s:{perseverance:2}},{s:{determination:2}},{s:{justice:3}}] },
+{ o:[{s:{kindness:2}},{s:{integrity:2}},{s:{perseverance:2}},{s:{bravery:2}},{s:{determination:2}}] },
+{ o:[{s:{kindness:3}},{s:{patience:2}},{s:{integrity:2}},{s:{bravery:2}}] },
+{ o:[{s:{integrity:3}},{s:{patience:2}},{s:{kindness:2}},{s:{bravery:2}}] },
+{ o:[{s:{determination:3}},{s:{perseverance:3}},{s:{integrity:2}},{s:{bravery:2}}] },
+{ o:[{s:{justice:3}},{s:{kindness:3}},{s:{integrity:2}},{s:{patience:2}},{s:{determination:2, perseverance:1}},{s:{bravery:2}}] },
+{ o:[{s:{justice:2, bravery:1}},{s:{kindness:3}},{s:{integrity:3}},{s:{patience:2}},{s:{determination:2}},{s:{patience:1, integrity:1}}] },
+{ o:[{s:{determination:3}},{s:{kindness:3}},{s:{perseverance:3}},{s:{integrity:3}}] },
+{ o:[{s:{kindness:3}},{s:{justice:3}},{s:{integrity:2}},{s:{patience:2}}] },
+{ o:[{s:{justice:2, bravery:1}},{s:{kindness:3}},{s:{justice:3}},{s:{determination:2, kindness:1}},{s:{patience:2, integrity:1}}] },
+{ o:[{s:{integrity:2, justice:1}},{s:{kindness:3}},{s:{perseverance:2, determination:1}},{s:{bravery:2, integrity:1}}] },
+{ o:[{s:{kindness:3}},{s:{integrity:3}},{s:{patience:3}},{s:{justice:3}},{s:{bravery:3}},{s:{perseverance:3}},{s:{determination:3}}] },
+{ o:[{s:{integrity:2, bravery:1}},{s:{patience:2}},{s:{determination:2}}] },
+{ o:[{s:{kindness:2, determination:1}},{s:{justice:2, bravery:1}},{s:{patience:2, integrity:1}},{s:{integrity:2}}] },
+{ o:[{s:{integrity:3, patience:2, kindness:1}},{s:{determination:3, perseverance:2, bravery:1}}] },
+];
+
+// ---------------- Question / option text per language ----------------
+const QUESTIONS_I18N = {
+  ar: [
+    { q:"ما هو الشعور أو المبدأ الذي يلهمك أكثر؟", o:["رؤية الآخرين سعداء","معرفة الحقيقة دائمًا","انتظار الوقت المناسب","إصلاح الأخطاء","مواجهة الخوف","النهوض بعد السقوط","الاستمرار مهما حدث"] },
+    { q:"ما الشيء الذي يجعلك سعيدًا؟", o:["مساعدة الآخرين","اكتشاف شيء جديد","لحظة هادئة","رؤية العدل","تجاوز تحدٍ","إنجاز صعب","تحقيق هدف"] },
+    { q:"شخص غريب يحتاج مساعدتك، لكن مساعدته ستؤخرك عن هدفك. ماذا تفعل؟", o:["أساعده، حياته أهم من هدفي","أساعده إذا لم يكن هناك خيار آخر","أجد طريقة لمساعدته وإكمال طريقي","أتجاهله لأن لدي مسؤولياتي"] },
+    { q:"أنت تتحكم بمصير شخص ارتكب جريمة خطيرة. ماذا تفعل؟", o:["أعطيه فرصة للتغيير","أجعله يواجه عواقب أفعاله","أحاول فهم أسبابه قبل الحكم عليه","أحاول إصلاحه مهما كان الأمر صعبًا"] },
+    { q:"شخص تحبه خان ثقتك. ماذا تفعل؟", o:["أسامحه إذا كان نادمًا","أحتاج وقتًا قبل اتخاذ القرار","أواجهه وأطلب الحقيقة","أنهي العلاقة مباشرة"] },
+    { q:"لديك فرصة لتحقيق حلمك، لكن شخصًا بريئًا سيتأذى. ماذا تفعل؟", o:["أتخلى عن حلمي","أبحث عن حل آخر مهما طال الوقت","أقبل التضحية لأن الهدف مهم","أرفض لأن ذلك غير عادل"] },
+    { q:"ما الشيء الذي تخاف أن تصبح عليه؟", o:["شخص بلا رحمة","شخص لا يعرف الحقيقة عن نفسه","شخص يستسلم بسهولة","شخص لا يستطيع حماية الآخرين","شخص فقد سبب الاستمرار"] },
+    { q:"شخص يكرهك بدون سبب، لكنه يحتاج مساعدتك. ماذا تفعل؟", o:["أساعده رغم كرهه لي","أحاول فهم سبب كرهه","أساعده لأثبت أن الكراهية لا تغيرني","أواجهه وأسأله مباشرة"] },
+    { q:"لو استطعت معرفة كل أسرار العالم...", o:["أريد الحقيقة مهما كانت مؤلمة","بعض الأسرار يجب أن تبقى مخفية","أبحث عنها إذا كانت ستساعد الآخرين","أعرفها لأنني لا أخاف العواقب"] },
+    { q:"الجميع يقول لك إنك لن تنجح. ماذا تفعل؟", o:["أثبت لهم أنهم مخطئون","أستمر بصمت حتى أصل","أفهم سبب فشلي وأطور نفسي","لا أهتم بما يقولون"] },
+    { q:"أنت تملك القدرة على إنقاذ شخص واحد فقط. أمامك شخص بريء وشخص تحبه، لكن لا يمكنك إنقاذ الاثنين. ماذا تختار؟", o:["الشخص البريء","الشخص الذي أحبه","القرعة","لا أختار","أحاول إنقاذ الاثنين","أضحي بنفسي"] },
+    { q:"بعد سنوات من القتال، وصلت أخيرًا إلى الشخص المسؤول عن كل معاناتك. هو ضعيف ولا يستطيع الدفاع عن نفسه. ماذا تفعل؟", o:["الانتقام","العفو","المحاكمة","الرحيل","الإصلاح","التردد"] },
+    { q:"خسرت كل شيء. ماذا يبقى لديك؟", o:["الأمل","الأشخاص الذين أحبهم","القدرة على البدء من جديد","مبادئي"] },
+    { q:"هل كل شخص يستحق فرصة ثانية؟", o:["نعم، الجميع يمكن أن يتغير","لا، بعض الأفعال لها عواقب","يعتمد على السبب والظروف","لا أعرف، أحتاج وقتًا للتفكير"] },
+    { q:"وجدت الشخص المسؤول عن موت شخص تحبه. لديك فرصة لإنهاء حياته ولن يعرف أحد أنك فعلت ذلك. ماذا تفعل؟", o:["أقتله، لأنه يستحق نفس الألم","أتركه، قتله لن يعيد من فقدته","أجعله يواجه العدالة بدل أن أصبح مثله","أحاول فهمه وتغييره","لا أعرف... ربما أحتاج وقتًا لأقرر"] },
+    { q:"شخص تحبه يحمل سرًا. كشفه سينقذ آلاف الأشخاص، لكنه سيدمر حياته بالكامل. ماذا تفعل؟", o:["أكشف الحقيقة، حياة الآلاف أهم","أخفي السر، لا أستطيع تدمير شخص أحبه","أبحث عن حل آخر مهما استغرق الوقت","أخبره بالحقيقة وأترك القرار له"] },
+    { q:"أي جملة تمثلك أكثر؟", o:["حتى أصغر فعل رحيم يمكن أن يغير حياة شخص.","الحقيقة أهم من الراحة.","كل شيء يحتاج وقته.","الأخطاء يجب مواجهتها حتى لا تتكرر.","الخوف موجود، لكن الهروب ليس خيارًا.","السقوط ليس النهاية.","حتى لو بقيت وحدي، سأكمل."] },
+    { q:"هل تريد معرفة حقيقتك حتى لو كانت مؤلمة؟", o:["نعم","لا","لا أعرف... لكنني سأواجهها عندما يحين الوقت"] },
+    { q:"شخص يشبهك تمامًا لكنه اختار طريقًا مظلمًا. ماذا تفعل؟", o:["أحاول إنقاذه","أوقفه قبل أن يؤذي الآخرين","أحاول فهمه أولًا","أتركه، اختياراته مسؤوليته"] },
+    { q:"بعد سنوات من العمل على نفسك، تصل إلى مكان كنت تحلم به منذ طفولتك. لكن عندما تنظر إلى الماضي، تكتشف أن الطريق الذي سلكته جعلك شخصًا مختلفًا تمامًا. أصبحت أقوى وأكثر نجاحًا، لكنك فقدت هدوءك وعلاقاتك وبعض مبادئك القديمة. أمامك خيار العودة إلى من كنت عليه، أو البقاء كما أنت الآن. ماذا تختار؟", o:["أعود","أبقى"] },
+  ],
+  en: [
+    { q:"Which feeling or principle inspires you the most?", o:["Seeing others happy","Always knowing the truth","Waiting for the right moment","Fixing mistakes","Facing your fears","Rising after a fall","Continuing no matter what"] },
+    { q:"What makes you happy?", o:["Helping others","Discovering something new","A quiet moment","Seeing justice done","Overcoming a challenge","A hard-won achievement","Reaching a goal"] },
+    { q:"A stranger needs your help, but helping them will delay your goal. What do you do?", o:["I help them — their life matters more than my goal","I help if there's no other choice","I find a way to help and still continue my path","I ignore them, I have my own responsibilities"] },
+    { q:"You control the fate of someone who committed a serious crime. What do you do?", o:["I give them a chance to change","I make them face the consequences","I try to understand their reasons before judging","I try to fix them no matter how hard it is"] },
+    { q:"Someone you love betrayed your trust. What do you do?", o:["I forgive them if they're truly sorry","I need time before deciding","I confront them and demand the truth","I end the relationship immediately"] },
+    { q:"You have a chance to fulfill your dream, but an innocent person will get hurt. What do you do?", o:["I give up my dream","I search for another way no matter how long it takes","I accept the sacrifice, the goal matters","I refuse, because it's not fair"] },
+    { q:"What do you fear becoming?", o:["Someone without mercy","Someone who doesn't know the truth about themselves","Someone who gives up easily","Someone who can't protect others","Someone who lost their reason to go on"] },
+    { q:"Someone hates you for no reason, but they need your help. What do you do?", o:["I help them despite their hatred","I try to understand why they hate me","I help to prove that hatred doesn't change me","I confront them and ask directly"] },
+    { q:"If you could know all the secrets of the world...", o:["I want the truth no matter how painful","Some secrets should stay hidden","I'd seek them out if they'd help others","I'd learn them, I don't fear the consequences"] },
+    { q:"Everyone tells you that you won't succeed. What do you do?", o:["I prove them wrong","I keep going quietly until I get there","I understand why I failed and improve myself","I don't care what they say"] },
+    { q:"You can only save one person. In front of you are an innocent stranger and someone you love, but you can't save both. What do you choose?", o:["The innocent stranger","The person I love","I let fate decide","I refuse to choose","I try to save them both","I sacrifice myself instead"] },
+    { q:"After years of fighting, you finally reach the one responsible for all your suffering. They're weak and can't defend themselves. What do you do?", o:["Revenge","Forgiveness","A trial","Walk away","Try to fix them","Hesitate"] },
+    { q:"You lost everything. What do you have left?", o:["Hope","The people I love","The ability to start over","My principles"] },
+    { q:"Does everyone deserve a second chance?", o:["Yes, everyone can change","No, some actions have consequences","It depends on the reason and circumstances","I don't know, I need time to think"] },
+    { q:"You found the one responsible for the death of someone you loved. You could end their life and no one would ever know. What do you do?", o:["I kill them, they deserve the same pain","I spare them, killing won't bring back who I lost","I make them face justice instead of becoming like them","I try to understand and change them","I don't know... maybe I need time to decide"] },
+    { q:"Someone you love holds a secret. Revealing it would save thousands of lives, but it would completely destroy theirs. What do you do?", o:["I reveal the truth, thousands of lives matter more","I keep the secret, I can't destroy someone I love","I search for another way no matter how long it takes","I tell them the truth and let them decide"] },
+    { q:"Which sentence represents you the most?", o:["Even the smallest act of kindness can change a life.","Truth matters more than comfort.","Everything needs its own time.","Mistakes must be faced so they don't repeat.","Fear exists, but running away isn't an option.","Falling isn't the end.","Even if I'm left alone, I'll keep going."] },
+    { q:"Do you want to know your truth, even if it hurts?", o:["Yes","No","I don't know... but I'll face it when the time comes"] },
+    { q:"Someone exactly like you chose a dark path. What do you do?", o:["I try to save them","I stop them before they hurt others","I try to understand them first","I leave them, their choices are their own"] },
+    { q:"After years of working on yourself, you reach a place you dreamed of since childhood. But looking back, you realize the path you took made you a completely different person. You became stronger and more successful, but you lost your peace, your relationships, and some of your old principles. You can go back to who you used to be, or stay as you are now. What do you choose?", o:["I go back","I stay"] },
+  ],
+  es: [
+    { q:"¿Qué sentimiento o principio te inspira más?", o:["Ver felices a los demás","Conocer siempre la verdad","Esperar el momento adecuado","Corregir los errores","Enfrentar el miedo","Levantarte después de caer","Seguir adelante pase lo que pase"] },
+    { q:"¿Qué te hace feliz?", o:["Ayudar a los demás","Descubrir algo nuevo","Un momento de calma","Ver que se hace justicia","Superar un desafío","Un logro difícil","Alcanzar una meta"] },
+    { q:"Un desconocido necesita tu ayuda, pero ayudarlo retrasará tu meta. ¿Qué haces?", o:["Lo ayudo, su vida importa más que mi meta","Lo ayudo si no hay otra opción","Busco la forma de ayudarlo y seguir mi camino","Lo ignoro, tengo mis propias responsabilidades"] },
+    { q:"Tienes el destino de alguien que cometió un crimen grave en tus manos. ¿Qué haces?", o:["Le doy una oportunidad de cambiar","Lo hago enfrentar las consecuencias","Intento entender sus motivos antes de juzgar","Intento ayudarlo a cambiar sin importar lo difícil que sea"] },
+    { q:"Alguien que amas traicionó tu confianza. ¿Qué haces?", o:["Lo perdono si está arrepentido","Necesito tiempo antes de decidir","Lo enfrento y exijo la verdad","Termino la relación de inmediato"] },
+    { q:"Tienes la oportunidad de cumplir tu sueño, pero una persona inocente saldrá herida. ¿Qué haces?", o:["Renuncio a mi sueño","Busco otra solución sin importar cuánto tarde","Acepto el sacrificio, la meta importa","Me niego, porque no es justo"] },
+    { q:"¿En qué temes convertirte?", o:["Alguien sin compasión","Alguien que no conoce la verdad sobre sí mismo","Alguien que se rinde fácilmente","Alguien incapaz de proteger a los demás","Alguien que perdió su razón para continuar"] },
+    { q:"Alguien te odia sin razón, pero necesita tu ayuda. ¿Qué haces?", o:["Lo ayudo a pesar de su odio","Intento entender por qué me odia","Lo ayudo para demostrar que el odio no me cambia","Lo enfrento y le pregunto directamente"] },
+    { q:"Si pudieras conocer todos los secretos del mundo...", o:["Quiero la verdad sin importar cuánto duela","Algunos secretos deben permanecer ocultos","Los buscaría si ayudaran a otros","Los conocería, no temo las consecuencias"] },
+    { q:"Todos te dicen que no tendrás éxito. ¿Qué haces?", o:["Les demuestro que están equivocados","Sigo adelante en silencio hasta lograrlo","Entiendo por qué fallé y mejoro","No me importa lo que digan"] },
+    { q:"Solo puedes salvar a una persona. Ante ti hay un desconocido inocente y alguien que amas, pero no puedes salvar a ambos. ¿Qué eliges?", o:["Al desconocido inocente","A la persona que amo","Dejo que la suerte decida","Me niego a elegir","Intento salvar a ambos","Me sacrifico yo mismo"] },
+    { q:"Después de años de lucha, finalmente llegas ante el responsable de todo tu sufrimiento. Está débil y no puede defenderse. ¿Qué haces?", o:["Venganza","Perdón","Un juicio","Alejarme","Intentar cambiarlo","Dudar"] },
+    { q:"Lo perdiste todo. ¿Qué te queda?", o:["Esperanza","Las personas que amo","La capacidad de empezar de nuevo","Mis principios"] },
+    { q:"¿Todos merecen una segunda oportunidad?", o:["Sí, todos pueden cambiar","No, algunos actos tienen consecuencias","Depende del motivo y las circunstancias","No lo sé, necesito tiempo para pensar"] },
+    { q:"Encontraste al responsable de la muerte de alguien que amabas. Podrías acabar con su vida y nadie lo sabría jamás. ¿Qué haces?", o:["Lo mato, merece el mismo dolor","Lo dejo vivir, matarlo no traerá de vuelta a quien perdí","Lo hago enfrentar la justicia en vez de volverme como él","Intento entenderlo y cambiarlo","No lo sé... tal vez necesito tiempo para decidir"] },
+    { q:"Alguien que amas guarda un secreto. Revelarlo salvaría miles de vidas, pero destruiría por completo la suya. ¿Qué haces?", o:["Revelo la verdad, miles de vidas importan más","Guardo el secreto, no puedo destruir a quien amo","Busco otra solución sin importar cuánto tarde","Le digo la verdad y dejo que decida"] },
+    { q:"¿Qué frase te representa más?", o:["Hasta el acto más pequeño de bondad puede cambiar una vida.","La verdad importa más que la comodidad.","Todo necesita su tiempo.","Los errores deben enfrentarse para que no se repitan.","El miedo existe, pero huir no es una opción.","Caer no es el final.","Aunque me quede solo, seguiré adelante."] },
+    { q:"¿Quieres conocer tu verdad, incluso si duele?", o:["Sí","No","No lo sé... pero la enfrentaré cuando llegue el momento"] },
+    { q:"Alguien idéntico a ti eligió un camino oscuro. ¿Qué haces?", o:["Intento salvarlo","Lo detengo antes de que dañe a otros","Primero intento entenderlo","Lo dejo, sus decisiones son responsabilidad suya"] },
+    { q:"Después de años trabajando en ti mismo, llegas al lugar que soñabas desde la infancia. Pero al mirar atrás, te das cuenta de que el camino recorrido te convirtió en una persona completamente distinta. Te volviste más fuerte y exitoso, pero perdiste tu paz, tus relaciones y algunos de tus antiguos principios. Puedes volver a ser quien eras, o quedarte como eres ahora. ¿Qué eliges?", o:["Vuelvo","Me quedo"] },
+  ]
+};
+
+// ---------------- UI strings per language ----------------
+const UI = {
+  ar: { kicker:"* بقي روح واحدة صامدة في هذا الطريق", title:"أي روح تحملها؟",
+    subtitle:"عشرون سؤالًا تكشف إلى أي الأرواح السبعة تنتمي. أجب بصدق، فكل اختيار يترك أثرًا.",
+    begin:"ابدأ الرحلة ▶", youAre:"روحك هي", eyebrow:"* روحك الحقيقية هي",
+    skip:"(اضغط هنا لإظهار النص كاملًا)", retry:"أعد المحاولة من جديد",
+    statsBtn:"📊 الإحصائيات", statsTitle:"إحصائيات الأرواح", totalUsers:"إجمالي المشاركين",
+    statsLoading:"جاري التحميل...", statsError:"تعذر تحميل الإحصائيات", statsClose:"إغلاق" },
+  en: { kicker:"* One soul remains standing on this path", title:"Which soul do you carry?",
+    subtitle:"Twenty questions reveal which of the seven souls you belong to. Answer honestly — every choice leaves a mark.",
+    begin:"Begin the Journey ▶", youAre:"You are filled with", eyebrow:"* Your true soul is",
+    skip:"(tap here to reveal the full text)", retry:"Try Again",
+    statsBtn:"📊 Stats", statsTitle:"Soul Statistics", totalUsers:"Total participants",
+    statsLoading:"Loading...", statsError:"Couldn't load statistics", statsClose:"Close" },
+  es: { kicker:"* Un alma permanece de pie en este camino", title:"¿Qué alma llevas?",
+    subtitle:"Veinte preguntas revelan a cuál de las siete almas perteneces. Responde con sinceridad: cada elección deja huella.",
+    begin:"Comienza el Viaje ▶", youAre:"Tu alma es", eyebrow:"* Tu verdadera alma es",
+    skip:"(toca aquí para mostrar el texto completo)", retry:"Intentar de nuevo",
+    statsBtn:"📊 Estadísticas", statsTitle:"Estadísticas de almas", totalUsers:"Participantes totales",
+    statsLoading:"Cargando...", statsError:"No se pudieron cargar las estadísticas", statsClose:"Cerrar" },
+};
+
+// ---------------- Visitor stats backend (free, no signup) ----------------
+const STATS_BASE = 'https://countapi.mileshilliard.com/api/v1';
+const STATS_PREFIX = 'undertale-soul-quiz-tobi17vr00';
+function statHit(key){
+  fetch(`${STATS_BASE}/hit/${STATS_PREFIX}_${key}`).catch(()=>{});
+}
+function statGet(key){
+  return fetch(`${STATS_BASE}/get/${STATS_PREFIX}_${key}`)
+    .then(r => r.ok ? r.json() : {value:0})
+    .then(d => parseInt(d.value) || 0)
+    .catch(() => 0);
+}
+
+// ---------------- Game state ----------------
+let LANG = 'ar';
+let currentIndex = 0;
+let scores = {};
+let typeTimer = null;
+
+function resetScores(){
+  scores = {};
+  Object.keys(SOULS).forEach(k => scores[k] = 0);
+}
+
+// ---------------- DOM references ----------------
+const screenStart = document.getElementById('screen-start');
+const screenQuiz = document.getElementById('screen-quiz');
+const screenResult = document.getElementById('screen-result');
+const btnBegin = document.getElementById('btn-begin');
+const btnRetry = document.getElementById('btn-retry');
+const questionText = document.getElementById('question-text');
+const optionsContainer = document.getElementById('options-container');
+const progressLabel = document.getElementById('progress-label');
+const progressFill = document.getElementById('progress-fill');
+const soulPreview = document.getElementById('soul-preview');
+const resultName = document.getElementById('result-name');
+const soulNameAr = document.getElementById('soul-name-ar');
+const soulNameEn = document.getElementById('soul-name-en');
+const introText = document.getElementById('intro-text');
+const introCursor = document.getElementById('intro-cursor');
+const quoteText = document.getElementById('quote-text');
+const quoteCursor = document.getElementById('quote-cursor');
+const resultQuote = document.getElementById('result-quote');
+const skipHint = document.getElementById('skip-hint');
+const portraitWrap = document.getElementById('portrait-wrap');
+const portraitFrame = document.getElementById('portrait-frame');
+const kickerText = document.getElementById('kicker-text');
+const titleText = document.getElementById('title-text');
+const subtitleText = document.getElementById('subtitle-text');
+const beginText = document.getElementById('begin-text');
+const eyebrowText = document.getElementById('eyebrow-text');
+const youareText = document.getElementById('youare-text');
+const skipText = document.getElementById('skip-hint');
+const retryText = document.getElementById('retry-text');
+const langButtons = document.querySelectorAll('.lang-btn');
+const resultActions = document.getElementById('result-actions');
+const btnStats = document.getElementById('btn-stats');
+const statsBtnText = document.getElementById('stats-btn-text');
+const statsOverlay = document.getElementById('stats-overlay');
+const statsTitleEl = document.getElementById('stats-title');
+const statsTotalEl = document.getElementById('stats-total');
+const statsListEl = document.getElementById('stats-list');
+const btnStatsClose = document.getElementById('btn-stats-close');
+const statsCloseText = document.getElementById('stats-close-text');
+
+Object.values(SOULS).forEach(s => {
+  const dot = document.createElement('div');
+  dot.className = 'mini-heart';
+  dot.style.background = s.color;
+  dot.style.boxShadow = `0 0 8px ${s.color}`;
+  soulPreview.appendChild(dot);
+});
+
+function applyUIText(){
+  const t = UI[LANG];
+  kickerText.textContent = t.kicker;
+  titleText.textContent = t.title;
+  subtitleText.textContent = t.subtitle;
+  beginText.textContent = t.begin;
+  eyebrowText.textContent = t.eyebrow;
+  youareText.textContent = t.youAre;
+  retryText.textContent = t.retry;
+  skipHint.textContent = t.skip;
+  statsBtnText.textContent = t.statsBtn;
+  statsTitleEl.textContent = t.statsTitle;
+  statsCloseText.textContent = t.statsClose;
+}
+
+function setLang(lang){
+  LANG = lang;
+  document.documentElement.lang = lang;
+  document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+  langButtons.forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  applyUIText();
+  if(screenQuiz.classList.contains('active')){ renderQuestion(); }
+}
+
+langButtons.forEach(btn => {
+  btn.addEventListener('click', () => setLang(btn.dataset.lang));
+});
+
+function showScreen(el){
+  [screenStart, screenQuiz, screenResult].forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  const dock = document.getElementById('social-dock');
+  const vdock = document.getElementById('visitor-dock');
+  if(dock){
+    if(el === screenStart){ dock.classList.add('visible'); }
+    else{ dock.classList.remove('visible'); }
+  }
+  if(vdock){
+    if(el === screenStart){ vdock.classList.add('visible'); }
+    else{ vdock.classList.remove('visible'); }
+  }
+}
+
+function startQuiz(){
+  resetScores();
+  currentIndex = 0;
+  showScreen(screenQuiz);
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const meta = QUESTIONS[currentIndex];
+  const text = QUESTIONS_I18N[LANG][currentIndex];
+  questionText.textContent = text.q;
+  progressLabel.textContent = `${currentIndex + 1} / ${QUESTIONS.length}`;
+  progressFill.style.width = `${(currentIndex / QUESTIONS.length) * 100}%`;
+
+  optionsContainer.innerHTML = '';
+  meta.o.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'btn';
+    btn.innerHTML = `<span class="pointer"></span><span>${text.o[idx]}</span>`;
+    btn.addEventListener('click', () => selectOption(opt.s));
+    optionsContainer.appendChild(btn);
+  });
+}
+
+function selectOption(soulPoints){
+  Object.keys(soulPoints).forEach(key => {
+    scores[key] = (scores[key] || 0) + soulPoints[key];
+  });
+  currentIndex++;
+  if(currentIndex < QUESTIONS.length){
+    renderQuestion();
+  } else {
+    progressFill.style.width = '100%';
+    setTimeout(showResult, 250);
+  }
+}
+
+// ---------------- Typewriter effect ----------------
+function typeText(el, text, speed, onDone){
+  clearInterval(typeTimer);
+  el.textContent = '';
+  let i = 0;
+  typeTimer = setInterval(() => {
+    el.textContent += text[i];
+    i++;
+    if(i >= text.length){
+      clearInterval(typeTimer);
+      if(onDone) onDone();
+    }
+  }, speed);
+}
+
+let currentSoul = null;
+let revealStage = 0; // 0 = typing intro, 1 = typing quote, 2 = done
+
+function showResult(){
+  let winner = Object.keys(scores)[0];
+  Object.keys(scores).forEach(k => {
+    if(scores[k] > scores[winner]) winner = k;
+  });
+  const visual = SOULS[winner];
+  const soul = Object.assign({ key: winner }, visual, SOUL_I18N[LANG][winner]);
+  currentSoul = soul;
+
+  document.documentElement.style.setProperty('--accent', soul.color);
+
+  resultName.style.display = 'none';
+  portraitWrap.style.display = 'none';
+  resultQuote.style.display = 'none';
+  resultActions.style.display = 'none';
+  statHit(winner);
+  statHit('total');
+  soulNameAr.textContent = `${soul.name}`;
+  soulNameAr.style.color = soul.color;
+  if(LANG === 'ar'){
+    soulNameEn.textContent = `(${soul.en})`;
+    soulNameEn.style.color = soul.color;
+    soulNameEn.style.display = 'block';
+  } else {
+    soulNameEn.style.display = 'none';
+  }
+  introCursor.style.display = 'inline-block';
+  quoteCursor.style.display = 'inline-block';
+
+  showScreen(screenResult);
+
+  revealStage = 0;
+  typeText(introText, soul.intro, 55, () => {
+    introCursor.style.display = 'none';
+    revealStage = 1;
+    revealNameAndImages(soul);
+  });
+}
+
+function revealNameAndImages(soul){
+  resultName.style.display = 'block';
+  portraitWrap.style.display = 'inline-block';
+
+  portraitFrame.innerHTML = '';
+  const portrait = new Image();
+  portrait.alt = soul.name;
+  portrait.onerror = () => { portraitFrame.innerHTML = `<span class="gif-fallback">${soul.portrait}</span>`; };
+  portrait.src = soul.portrait;
+  portraitFrame.appendChild(portrait);
+
+  resultQuote.style.display = 'block';
+  typeText(quoteText, soul.quote, 55, () => {
+    quoteCursor.style.display = 'none';
+    revealStage = 2;
+    resultActions.style.display = 'flex';
+  });
+}
+
+skipHint.addEventListener('click', () => {
+  if(!currentSoul) return;
+  clearInterval(typeTimer);
+  introText.textContent = currentSoul.intro;
+  introCursor.style.display = 'none';
+  quoteText.textContent = currentSoul.quote;
+  quoteCursor.style.display = 'none';
+  if(portraitWrap.style.display === 'none'){
+    resultName.style.display = 'block';
+    portraitWrap.style.display = 'inline-block';
+    portraitFrame.innerHTML = '';
+    const portrait = new Image();
+    portrait.onerror = () => { portraitFrame.innerHTML = `<span class="gif-fallback">${currentSoul.portrait}</span>`; };
+    portrait.src = currentSoul.portrait;
+    portraitFrame.appendChild(portrait);
+  }
+  resultQuote.style.display = 'block';
+  revealStage = 2;
+  resultActions.style.display = 'flex';
+});
+
+btnBegin.addEventListener('click', startQuiz);
+btnRetry.addEventListener('click', () => { clearInterval(typeTimer); showScreen(screenStart); });
+
+const SOUL_KEYS = Object.keys(SOULS);
+
+btnStats.addEventListener('click', () => {
+  statsOverlay.classList.add('open');
+  const t = UI[LANG];
+  statsTotalEl.textContent = t.statsLoading;
+  statsListEl.innerHTML = '';
+
+  const gets = SOUL_KEYS.map(k => statGet(k));
+  gets.push(statGet('total'));
+
+  Promise.all(gets).then(results => {
+    const totalFromKey = results.pop();
+    const perSoul = {};
+    SOUL_KEYS.forEach((k, i) => { perSoul[k] = results[i]; });
+    const sumOfSouls = SOUL_KEYS.reduce((a, k) => a + perSoul[k], 0);
+    const total = Math.max(totalFromKey, sumOfSouls, 1);
+
+    statsTotalEl.innerHTML = `${t.totalUsers}<b>${totalFromKey}</b>`;
+    statsListEl.innerHTML = '';
+
+    const sorted = [...SOUL_KEYS].sort((a, b) => perSoul[b] - perSoul[a]);
+    const highestCount = Math.max(...SOUL_KEYS.map(k => perSoul[k]));
+
+    sorted.forEach((k, index) => {
+      const count = perSoul[k];
+      const pct = Math.round((count / total) * 100);
+      const name = SOUL_I18N[LANG][k].name;
+      const color = SOULS[k].color;
+      const isTop = count === highestCount && count > 0;
+      const glow = 4 + (pct / 100) * 14;
+
+      const card = document.createElement('div');
+      card.className = 'stats-card' + (isTop ? ' top' : '');
+      card.style.setProperty('--card-color', color);
+      card.innerHTML = `
+        <div class="stats-row-label">
+          <span class="stats-soul-name"><span class="stats-dot" style="background:${color};"></span>${isTop ? '<span class="stats-crown">👑</span> ' : ''}${name}</span>
+          <span><span class="stats-pct" style="color:${color};">${pct}%</span> <span class="stats-count">(${count})</span></span>
+        </div>
+        <div class="stats-bar-track"><div class="stats-bar-fill" style="width:${pct}%; background:${color}; box-shadow:0 0 ${glow}px ${color};"></div></div>
+      `;
+      statsListEl.appendChild(card);
+    });
+  }).catch(() => {
+    statsTotalEl.textContent = t.statsError;
+  });
+});
+
+btnStatsClose.addEventListener('click', () => {
+  statsOverlay.classList.remove('open');
+});
+
+applyUIText();
+</script>
+</body>
+</html>
